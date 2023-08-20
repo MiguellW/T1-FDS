@@ -57,8 +57,8 @@ public class Dados implements IDados {
     }
 
     @Override
-    public List<RegistroDoTempo> retornaDados(List<RegistroDoTempo> dados) {
-        return dados;
+    public List<RegistroDoTempo> retornaDados() {
+        return this.registros;
     }
 
 }

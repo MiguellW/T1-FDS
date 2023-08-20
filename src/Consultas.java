@@ -1,23 +1,20 @@
-import java.io.IOException;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.Comparator;
-import java.util.LinkedList;
 import java.util.List;
-import java.util.Scanner;
+import java.util.function.Predicate;
 
 public class Consultas {
 
     private Dados dados;
+    private Predicate<RegistroDoTempo> condicao;
 
     public Consultas(Dados dados) {
         this.dados = dados;
+        condicao = r -> ((RegistroDoTempo) r).getDia() > 20;
     }
 
     public List<String> datasEmQueChouveuMaisDe(double milimetros) {
-        return dados.retornaDados(null)
+        return dados.retornaDados()
                 .stream()
                 .filter(r -> r.getPrecipitacao() > milimetros)
                 .map(r -> r.getDia() + "/" + r.getMes() + "/" + r.getAno())
@@ -25,7 +22,7 @@ public class Consultas {
     }
 
     public String diaQueMaisChoveuNoAno(int ano) {
-        RegistroDoTempo registro = dados.retornaDados(null)
+        RegistroDoTempo registro = dados.retornaDados()
                 .stream()
                 .filter(reg -> reg.getAno() == ano)
                 .max(Comparator.comparing(RegistroDoTempo::getPrecipitacao))
@@ -33,5 +30,22 @@ public class Consultas {
         String resp = registro.getDia() + "/" + registro.getMes() + "/" + registro.getAno() + ", "
                 + registro.getPrecipitacao();
         return resp;
+    }
+
+    public List<Data> diasEmQue(List<RegistroDoTempo> lista) {
+        List<Data> dataNova = new ArrayList<>();
+
+        for (RegistroDoTempo registro : lista) {
+            if (condicao.test(registro)) {
+                Data data = new Data(registro, registro.getDia(), registro.getMes(), registro.getAno());
+                dataNova.add(data);
+            }
+        }
+
+        return dataNova;
+    }
+
+    void alteraConsultaPadrao(Predicate<RegistroDoTempo> consulta) {
+        this.condicao = consulta;
     }
 }
